@@ -17,11 +17,16 @@ be written in a vectorized style for performance. Julia's compiler uses type inf
 optimized code for scalar array indexing, allowing programs to be written in a style that is convenient
 and readable, without sacrificing performance, and using less memory at times.
 
-In Julia, all arguments to functions are passed by reference. Some technical computing languages
-pass arrays by value, and this is convenient in many cases. In Julia, modifications made to input
-arrays within a function will be visible in the parent function. The entire Julia array library
-ensures that inputs are not modified by library functions. User code, if it needs to exhibit similar
-behavior, should take care to create a copy of inputs that it may modify.
+In Julia, all arguments to functions are [passed by
+sharing](https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_sharing)
+(i.e. by pointers). Some technical computing languages pass arrays by value, and
+while this prevents accidental modification by callees of a value in the caller,
+it makes avoiding unwanted copying of arrays difficult. In Julia, modifications
+made to input arrays within a function will be visible in the parent function.
+The entire Julia array library copies arrays explicitly to ensure that inputs
+that should not be modified by callers are copied instead of being modified in
+place. User code, if it needs to exhibit similar behavior, should take care to
+create a copy of inputs that it may modify in the same fashion.
 
 ## Arrays
 
@@ -705,12 +710,14 @@ Very few operations are implemented specifically for `Array` beyond those that a
 for all `AbstractArrays`s; much of the array library is implemented in a generic
 manner that allows all custom arrays to behave similarly.
 
-`SubArray` is a specialization of `AbstractArray` that performs indexing by reference rather than
-by copying. A `SubArray` is created with the [`view`](@ref) function, which is called the same
-way as [`getindex`](@ref) (with an array and a series of index arguments). The result of [`view`](@ref)
-looks the same as the result of [`getindex`](@ref), except the data is left in place. [`view`](@ref)
-stores the input index vectors in a `SubArray` object, which can later be used to index the original
-array indirectly.  By putting the [`@views`](@ref) macro in front of an expression or
+`SubArray` is a specialization of `AbstractArray` that performs indexing by
+sharing memory with the original array rather than by copying it. A `SubArray`
+is created with the [`view`](@ref) function, which is called the same way as
+[`getindex`](@ref) (with an array and a series of index arguments). The result
+of [`view`](@ref) looks the same as the result of [`getindex`](@ref), except the
+data is left in place. [`view`](@ref) stores the input index vectors in a
+`SubArray` object, which can later be used to index the original array
+indirectly.  By putting the [`@views`](@ref) macro in front of an expression or
 block of code, any `array[...]` slice in that expression will be converted to
 create a `SubArray` view instead.
 

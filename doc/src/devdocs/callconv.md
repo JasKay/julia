@@ -16,7 +16,8 @@ signature.
 
   * LLVM ghosts (zero-length types) are omitted.
   * LLVM scalars and vectors are passed by value.
-  * LLVM aggregates (arrays and structs) are passed by reference.
+  * LLVM aggregates (arrays and structs) are [passed by
+    sharing](https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_sharing) (i.e. as pointers).
 
 A small return values is returned as LLVM return values. A large return values is returned via
 the "structure return" (`sret`) convention, where the caller provides a pointer to a return slot.
