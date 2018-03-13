@@ -809,43 +809,52 @@ julia> filter(!isalpha, str)
 """
 !(f::Function) = (x...)->!f(x...)
 
-struct EqualTo{T} <: Function
+struct Curry2{F,T} <: Function
+    f::F
     x::T
 
-    EqualTo(x::T) where {T} = new{T}(x)
+    Curry2(f::F, x::T) where {F,T} = new{F,T}(f, x)
+    Curry2(f::Type{F}, x::T) where {F,T} = new{Type{F},T}(f, x)
 end
 
-(f::EqualTo)(y) = isequal(f.x, y)
+(f::Curry2)(y) = f.f(y, f.x)
 
 """
-    equalto(x)
+    isequal(x)
 
-Create a function that compares its argument to `x` using [`isequal`](@ref); i.e. returns
-`y->isequal(x,y)`.
+Create a function that compares its argument to `x` using [`isequal`](@ref), i.e.
+a function equivalent to `y -> isequal(y, x)`.
 
-The returned function is of type `Base.EqualTo`. This allows dispatching to
-specialized methods by using e.g. `f::Base.EqualTo` in a method signature.
+The returned function is of type `Base.Curry2{typeof(isequal)}`, which can be
+used to implement specialized methods.
 """
-const equalto = EqualTo
+isequal(x) = Curry2(isequal, x)
 
-struct OccursIn{T} <: Function
-    x::T
-
-    OccursIn(x::T) where {T} = new{T}(x)
-end
-
-(f::OccursIn)(y) = y in f.x
+const EqualTo = Curry2{typeof(isequal)}
 
 """
-    occursin(x)
+    ==(x)
 
-Create a function that checks whether its argument is [`in`](@ref) `x`; i.e. returns
-`y -> y in x`.
+Create a function that compares its argument to `x` using [`==`](@ref), i.e.
+a function equivalent to `y -> y == x`.
 
-The returned function is of type `Base.OccursIn`. This allows dispatching to
-specialized methods by using e.g. `f::Base.OccursIn` in a method signature.
+The returned function is of type `Base.Curry2{typeof(==)}`, which can be
+used to implement specialized methods.
 """
-const occursin = OccursIn
+==(x) = Curry2(==, x)
+
+"""
+    in(x)
+
+Create a function that checks whether its argument is [`in`](@ref) `x`, i.e.
+a function equivalent to `y -> y in x`.
+
+The returned function is of type `Base.Curry2{typeof(in)}`, which can be
+used to implement specialized methods.
+"""
+in(x) = Curry2(in, x)
+
+const OccursIn = Curry2{typeof(in)}
 
 """
     splat(f)
