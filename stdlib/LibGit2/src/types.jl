@@ -208,6 +208,10 @@ end
     payloads::Dict{Symbol, Any}
 end
 
+function Base.getproperty(rp::RemotePayloads, callback::Symbol)
+    getfield(rp, :payloads)[callback]
+end
+
 """
     LibGit2.RemoteCallbacks
 

@@ -339,7 +339,7 @@ end
 function credentials_callback(libgit2credptr::Ptr{Ptr{Cvoid}}, url_ptr::Cstring,
                               username_ptr::Cstring, allowed_types::Cuint,
                               payloads::RemotePayloads)
-    p = payloads.payloads[:credentials]
+    p = payloads.credentials
     credentials_callback(libgit2credptr, url_ptr, username_ptr, allowed_types, p)
 end
 
