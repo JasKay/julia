@@ -390,7 +390,7 @@ checks and is only meant to improve readability of the call.
 | `wchar_t`       | `Cwchar_t`           | `Int32` (UNIX), `UInt16` (Windows)           |
 
 !!! note
-    When calling a Fortran function, all inputs must be passed by pointers to heap-allcated
+    When calling a Fortran function, all inputs must be passed by pointers to heap-allocated
     values, so all type correspondences above should contain an additional `Ptr{..}` or
     `Ref{..}` wrapper around their type specification.
 
